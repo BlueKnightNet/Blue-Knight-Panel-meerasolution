@@ -5,3 +5,8 @@
 !package.json
 !package-lock.json
 !index.js
+
+!telegram/
+!telegram/**
+telegram/**/__pycache__/
+telegram/**/*.pyc
