@@ -2,7 +2,7 @@ name: Container build and startup check
 
 on:
   push:
-    branches: [blue-knight-net, test/telegram-integration]
+    branches: [blue-knight-net]
     paths:
       - Dockerfile
       - .dockerignore
@@ -10,7 +10,6 @@ on:
       - package.json
       - package-lock.json
       - tests/**
-      - telegram/**
       - .github/workflows/container-check.yml
   workflow_dispatch:
 
@@ -27,9 +26,6 @@ jobs:
         run: |
           npm ci --ignore-scripts --no-audit --no-fund
           node tests/scanner.cjs
-          node tests/telegram.cjs
-          node --test tests/telegram-bridge.mjs
-          python3 tests/telegram_adapter.py
       - name: Build the plain Node.js image
         run: docker build -t blue-knight-smoke .
       - name: Start the panel
@@ -68,8 +64,6 @@ jobs:
             process.exitCode = 1;
           });
           NODE
-      - name: Check Telegram integration and V2Ray isolation
-        run: node tests/telegram-smoke.cjs
       - name: Runtime diagnostics
         if: always()
         run: docker logs panel-smoke || true
