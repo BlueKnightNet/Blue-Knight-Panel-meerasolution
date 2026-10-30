@@ -28,6 +28,7 @@ jobs:
           npm ci --ignore-scripts --no-audit --no-fund
           node tests/scanner.cjs
           node tests/telegram.cjs
+          node --test tests/telegram-bridge.mjs
           python3 tests/telegram_adapter.py
       - name: Build the plain Node.js image
         run: docker build -t blue-knight-smoke .
