@@ -5,3 +5,8 @@
 !package.json
 !package-lock.json
 !index.js
+
+!server.js
+!next.config.js
+!scripts/
+!scripts/build.cjs

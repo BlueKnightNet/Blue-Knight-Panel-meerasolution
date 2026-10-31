@@ -1,10 +1,31 @@
-# Blue Knight Panel · Deployment tests
+# Blue Knight Panel - Meera Solution
 
 Meera Solution edition of Blue Knight Panel. Deploy your own app with its own public domain.
 
 ## MS HOST / Meera Solution
 
-This is a **plain Node.js server**, not a Next.js application. A generated Next.js Dockerfile that runs `npm run build` and copies `.next/standalone` cannot deploy this project.
+Supports **Node.js**, **Docker**, and Meera's **Next.js standalone deployment template**. The server and proxy transports remain Node.js; a build adapter packages the same panel for the Next.js template without replacing its routing with a framework server.
+
+### Next.js deployment mode
+
+If Node.js deployment is unavailable, select **Next.js** and use:
+
+| Setting | Value |
+| --- | --- |
+| Repository | `BlueKnightNet/Blue-Knight-Panel-meerasolution` |
+| Branch | `blue-knight-net` |
+| Root directory | `/` |
+| Package manager | npm |
+| Build command | `npm run build` |
+| Port | `3000`, or the internal port assigned by the host through `PORT` |
+| Standalone start command, if requested | `node server.js` |
+| Persistent storage, if available | `/data` |
+
+The build creates `.next/standalone/server.js`, the panel, production dependencies, `.next/static`, and `public`. This supports templates that copy those directories into a non-root runtime image. It does not run the panel at build time, download engine binaries during build, or include local passwords and data in the output. Engine downloads still happen at runtime. This is deployment-template compatibility, not a conversion to a React/Next.js application.
+
+Leave generated runtime/start settings at their defaults when the host already runs `node server.js`. If the template runs `npm start`, that command continues to start the panel as well. The standalone launcher defaults to internal port 3000 and respects `PORT` / `SERVER_PORT`; external subscription links use HTTPS 443 for each app's Meera domain.
+
+### Docker deployment mode
 
 Use the repository's Dockerfile:
 
@@ -20,19 +41,21 @@ Use the repository's Dockerfile:
 | Start command override | Leave empty; the image runs `node index.js` |
 | Persistent volume, if available | `/data`, writable by UID/GID `1000` |
 
-If the current project is configured as Next.js, change the framework to Docker. If the dashboard does not allow changing it, create a Docker project connected to this repository. See the official [MS HOST Docker deployment guide](https://host.meerasolution.com/blogs/how-to-deploy-docker).
+See the official [Next.js deployment guide](https://host.meerasolution.com/blogs/how-to-deploy-nextjs) and [Docker deployment guide](https://host.meerasolution.com/blogs/how-to-deploy-docker) for the host dashboard controls.
 
 The image installs production npm dependencies and archive tools, then runs as the unprivileged `node` user. It defaults to internal port `3000` and public HTTPS/TLS links on `443`. If the platform assigns another `PORT`, match its internal routing to that value. Engine binaries are downloaded on first startup; allow time for initialization.
 
 Open `https://YOUR-APP-DOMAIN/knight` to create the password, then refresh the subscription. The panel learns the public hostname from the request. It does not contain a fixed Meera application domain. Keep `/data` persistent to preserve the UUID, password, subscription token, certificates, and engine files.
 
-Alternatively, choose the platform's **Node.js** framework, start with `npm start`, and match the platform's internal port to the app's `PORT` value. Do not select Next.js or add a fake build script to bypass its template.
+### Node.js deployment mode
+
+Where available, select **Node.js**, start with `npm start`, and match the platform's internal port to the app's `PORT` value. This path keeps the original startup behavior and does not require a build. Running `npm run build` is also supported if the host requires a build step.
 
 Generated `*.deploy.meerasolution.com` and `*.ms-host.com` app domains are recognized automatically: client configs use public HTTPS/TLS on **443**, independently of the internal port, and omit the panel's internal certificate pin. Refresh the subscription after deploying this version. For a custom domain, set `LINK_TLS=true` and `LINK_PORT=443` explicitly. Remove or correct stale overrides such as `LINK_PORT=8080`, which take priority over automatic detection.
 
 ## Container checks
 
-The [container workflow](.github/workflows/container-check.yml) builds the image on Linux, waits for the login page, and checks sing-box/Xray listeners. Building an image successfully is separate from confirming the hosting provider supports the proxy transports.
+The [container workflow](.github/workflows/container-check.yml) builds both the Node.js Dockerfile and a representative Node 20 Alpine/non-root Next.js standalone template on Linux, waits for the login page, and checks sing-box/Xray listeners. It also validates the standalone package and launcher. Building an image successfully is separate from confirming the hosting provider supports the proxy transports.
 
 ## Experimental IP Scanner tab
 

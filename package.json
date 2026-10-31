@@ -4,7 +4,8 @@
   "description": "Blue Knight Gate - multi-protocol proxy and web panel (Meera Solution edition)",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "build": "node scripts/build.cjs"
   },
   "dependencies": {
     "axios": "^1.7.7",
