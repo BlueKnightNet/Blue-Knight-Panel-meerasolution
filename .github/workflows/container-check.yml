@@ -59,8 +59,12 @@ jobs:
           docker exec -i panel-smoke node <<'NODE'
           const fs = require('node:fs');
           const net = require('node:net');
-          const sb = JSON.parse(fs.readFileSync('/data/sing-box.json', 'utf8'));
-          const xr = JSON.parse(fs.readFileSync('/data/xray.json', 'utf8'));
+          const path = require('node:path');
+          const folders = [process.env.BK_DATA_DIR, '/data', '/app/bk-data', path.join(require('node:os').tmpdir(), 'bk-data')].filter(Boolean);
+          const directory = folders.find(folder => fs.existsSync(path.join(folder, 'sing-box.json')) && fs.existsSync(path.join(folder, 'xray.json')));
+          if (!directory) throw new Error('Native engine configs are missing from the writable data folders.');
+          const sb = JSON.parse(fs.readFileSync(path.join(directory, 'sing-box.json'), 'utf8'));
+          const xr = JSON.parse(fs.readFileSync(path.join(directory, 'xray.json'), 'utf8'));
           const ports = [
             ...sb.inbounds.filter(i => i.transport && i.transport.type === 'ws').map(i => i.listen_port),
             ...xr.inbounds.map(i => i.port)
