@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "build": "node scripts/build.cjs"
+    "build": "node scripts/build.cjs",
+    "start:prod": "node server.js"
   },
   "dependencies": {
     "axios": "^1.7.7",

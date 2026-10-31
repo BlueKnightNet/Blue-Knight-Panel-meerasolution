@@ -18,12 +18,12 @@ If Node.js deployment is unavailable, select **Next.js** and use:
 | Package manager | npm |
 | Build command | `npm run build` |
 | Port | `3000`, or the internal port assigned by the host through `PORT` |
-| Standalone start command, if requested | `node server.js` |
+| Production start command | `npm run start:prod` (runs `node server.js`) |
 | Persistent storage, if available | `/data` |
 
 The build creates `.next/standalone/server.js`, the panel, production dependencies, `.next/static`, and `public`. This supports templates that copy those directories into a non-root runtime image. It does not run the panel at build time, download engine binaries during build, or include local passwords and data in the output. Engine downloads still happen at runtime. This is deployment-template compatibility, not a conversion to a React/Next.js application.
 
-Leave generated runtime/start settings at their defaults when the host already runs `node server.js`. If the template runs `npm start`, that command continues to start the panel as well. The standalone launcher defaults to internal port 3000 and respects `PORT` / `SERVER_PORT`; external subscription links use HTTPS 443 for each app's Meera domain.
+Leave generated runtime/start settings at their defaults when the host runs `npm run start:prod` or `node server.js`. If the template runs `npm start`, that command continues to start the panel as well. The standalone launcher defaults to internal port 3000 and respects `PORT` / `SERVER_PORT`; external subscription links use HTTPS 443 for each app's Meera domain.
 
 ### Docker deployment mode
 

@@ -10,6 +10,8 @@ assert(fs.existsSync(path.join(root, '.next/static/.keep')));
 assert(fs.existsSync(path.join(root, 'public/.keep')));
 assert.equal(fs.readFileSync(path.join(standalone, 'index.js'), 'utf8'), fs.readFileSync(path.join(root, 'index.js'), 'utf8'));
 assert.equal(require('../package.json').scripts.start, 'node index.js');
+assert.equal(require('../package.json').scripts['start:prod'], 'node server.js');
+assert.equal(JSON.parse(fs.readFileSync(path.join(standalone, 'package.json'))).scripts['start:prod'], 'node server.js');
 assert.equal(require('../next.config.js').output, 'standalone');
 for (const name of ['axios', 'express', 'ipaddr.js', 'ws']) {
   const result = spawnSync(process.execPath, ['-e', `require(${JSON.stringify(name)})`], { cwd: standalone, encoding: 'utf8' });

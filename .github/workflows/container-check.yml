@@ -30,6 +30,8 @@ jobs:
             dockerfile: Dockerfile
           - mode: next-template
             dockerfile: tests/Dockerfile.next-template
+          - mode: next-full-copy
+            dockerfile: tests/Dockerfile.next-full-copy
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
