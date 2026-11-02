@@ -12,7 +12,7 @@ const lock = JSON.parse(fs.readFileSync(path.join(root, 'package-lock.json'), 'u
 // Only this fixed, generated directory is replaced; /data and app state are not copied.
 fs.rmSync(output, { recursive: true, force: true });
 fs.mkdirSync(standalone, { recursive: true });
-for (const name of ['index.js', 'package.json', 'package-lock.json']) {
+for (const name of ['index.js', 'orihost.cjs', 'package.json', 'package-lock.json']) {
   fs.copyFileSync(path.join(root, name), path.join(standalone, name));
 }
 for (const [relative, info] of Object.entries(lock.packages || {})) {

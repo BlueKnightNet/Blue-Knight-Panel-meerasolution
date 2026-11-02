@@ -382,6 +382,9 @@ ${ANSI.reset}`;
 
 // --- Module: lib/config.js ---
 // BK_FIX3_APPLIED
+function bkOnPterodactyl() {
+  return !!(process.env.P_SERVER_UUID || process.env.BK_HOSTING === 'orihost' || process.cwd().replace(/\\/g, '/').replace(/\/$/, '') === '/home/container');
+}
 function bkOnRailway() {
   return !!(process.env.RAILWAY_PROJECT_ID || process.env.RAILWAY_ENVIRONMENT || process.env.RAILWAY_SERVICE_ID || process.env.RAILWAY_PUBLIC_DOMAIN);
 }
@@ -398,7 +401,7 @@ function bkOnEdgeHost() { return bkOnRailway(); }
 function bkUsesManagedHttps(host) {
   return bkOnEdgeHost() || /\.(hostless\.app|deploy\.meerasolution\.com|ms-host\.com)$/i.test(normalizeHost(host));
 }
-function bkPlatformName() { return bkOnRailway() ? 'Railway' : 'Self-hosted'; }
+function bkPlatformName() { return process.env.BK_HOSTING === 'orihost' ? 'Orihost' : (bkOnPterodactyl() ? 'Pterodactyl' : (bkOnRailway() ? 'Railway' : 'Self-hosted')); }
 /** Platform default hostnames: a relay / custom domain the visitor used beats these. */
 function bkIsPlatformHost(h) { return /(^|\.)(up\.railway\.app|hostless\.app|deploy\.meerasolution\.com|ms-host\.com)$/.test(String(h || '')); }
 /** Normalize "https://Name.example.com:443/path" -> "name.example.com" (IPv6 literals kept). */
@@ -539,6 +542,7 @@ function resolveDataDir(hint = '/data') { // BK_ZEROCONF_APPLIED
   const candidates = [
     [process.env.BK_DATA_DIR || process.env.FILE_PATH, 'BK_DATA_DIR'],
     [process.env.RAILWAY_VOLUME_MOUNT_PATH, 'Railway volume (RAILWAY_VOLUME_MOUNT_PATH)'],
+    [bkOnPterodactyl() ? path.join(process.cwd(), 'bk-data') : '', 'Pterodactyl persistent server folder'],
     [hint, 'default ' + hint],
     [path.join(process.cwd(), 'bk-data'), './bk-data fallback'],
     [path.join(__dirname, 'bk-data'), 'app-dir bk-data fallback'],
@@ -576,7 +580,7 @@ function buildConfig(userOverrides = {}) {
   const parseBool = (v, defaultVal) => (v !== undefined ? v === '1' || v === 'true' : defaultVal);
 
   if (env.PORT || env.SERVER_PORT || env.SB_PORT) {
-    const parsedPort = parseInt(env.PORT || env.SERVER_PORT || env.SB_PORT, 10);
+    const parsedPort = parseInt((bkOnPterodactyl() && env.SERVER_PORT) || env.PORT || env.SERVER_PORT || env.SB_PORT, 10);
     if (!isNaN(parsedPort) && parsedPort > 0) {
       cfg.publicPort = parsedPort;
     }
@@ -3997,7 +4001,8 @@ function createHttpPanel(config, stateManager, engineStatusGetter, resolvedHostG
     // domain) beats the auto-injected RAILWAY_PUBLIC_DOMAIN, so custom domains work with zero variables.
     if (config.domain && normalizeHost(process.env.DOMAIN || process.env.SB_DOMAIN || '')) return config.domain;
     const reqHost = normalizeHost(String(req.headers['x-forwarded-host'] || req.headers.host || '').split(',')[0]);
-    const reqOk = !!(reqHost && !isIpLiteral(reqHost) && reqHost !== 'localhost' && !reqHost.endsWith('.railway.internal'));
+    const allocatedIp = bkOnPterodactyl() && ipaddr.isValid(reqHost) && ipaddr.parse(reqHost).range() === 'unicast';
+    const reqOk = !!(reqHost && (!isIpLiteral(reqHost) || allocatedIp) && reqHost !== 'localhost' && !reqHost.endsWith('.railway.internal'));
     const savedRelay = (stateManager.state.publicHost && !bkIsPlatformHost(stateManager.state.publicHost)) ? stateManager.state.publicHost : '';
     if (savedRelay && (!reqOk || bkIsPlatformHost(reqHost))) return savedRelay; // relay / custom domain learned earlier beats the platform domain
     if (config.domain && (!reqOk || reqHost === config.domain || bkIsPlatformHost(reqHost))) return config.domain;

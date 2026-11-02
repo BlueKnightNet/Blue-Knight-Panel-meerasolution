@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node index.js",
     "build": "node scripts/build.cjs",
-    "start:prod": "node server.js"
+    "start:prod": "node server.js",
+    "start:orihost": "node orihost.cjs"
   },
   "dependencies": {
     "axios": "^1.7.7",

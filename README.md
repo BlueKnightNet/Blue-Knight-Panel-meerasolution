@@ -74,3 +74,21 @@ The scanner requires panel login and VLESS WS/TLS enabled on public port 443. No
 
 - [YouTube · BlueKnight-Net](https://www.youtube.com/@BlueKnight-Net)
 - [Telegram · BlueKnight_Net](https://t.me/BlueKnight_Net)
+
+## Orihost / Pterodactyl
+
+Choose a **Node.js 20 or 22** egg for the server. Upload the repository files to the server root (`/home/container`), or use the egg's Git repository installer if available. Repository: `https://github.com/BlueKnightNet/Blue-Knight-Panel-meerasolution.git`, branch: `blue-knight-net`.
+
+- Install packages: `npm ci --omit=dev --ignore-scripts` (or `npm install` if the egg installs automatically).
+- Startup command: `npm run start:orihost`, or entry file `orihost.cjs` when the egg asks for a script filename.
+- `SERVER_PORT` must be the primary port shown under Network/Allocations. Pterodactyl normally injects it automatically. The Orihost launcher gives this allocated port priority over a generic `PORT`.
+- Data is stored in `bk-data` inside the writable server folder. Keep that folder when updating files; it holds passwords, UUID, tokens, certificates and engine binaries.
+- No build step is required. No Orihost API key belongs in the server environment or repository.
+
+For a raw TCP allocation, open `http://YOUR-ALLOCATION-HOST:YOUR-ALLOCATED-PORT/knight`. This is your server allocation, not `panel.orihost.com`. After an authenticated visit, links learn that deployment's public hostname or IP and use the allocated port. A public API key is not needed for this detection. The IP shown in a startup log may instead be the node's outbound address; the authenticated request address takes precedence.
+
+If your plan supplies an HTTPS domain/reverse proxy, route it to the same allocated container port and set `DOMAIN` to your own public domain, `LINK_TLS=true` and `LINK_PORT=443`. These settings are only for a domain with working HTTPS; raw allocations do not automatically provide a publicly trusted certificate or port 443. Preserve any existing explicit settings when moving an app.
+
+The panel's HTTP(S), WebSocket and XHTTP paths share the primary TCP allocation. UDP protocols require separate UDP allocations and are not enabled by this integration. The Scanner tab requires a configured HTTPS domain on public port 443; it is not a scanner for raw allocation ports.
+
+Check the applicable hosting plan before deployment: Orihost's [published terms](https://orihost.com/tos/) restrict VPN/proxy services, particularly on free hosting. Platform compatibility does not establish that a plan permits this workload. See [Orihost server creation](https://docs.orihost.com/create-server/) and [package installation](https://docs.orihost.com/install-packages/).

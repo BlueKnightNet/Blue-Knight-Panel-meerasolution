@@ -10,3 +10,5 @@
 !next.config.js
 !scripts/
 !scripts/build.cjs
+
+!orihost.cjs
